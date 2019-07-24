@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moq;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
@@ -8,14 +9,38 @@ namespace YamlDiff.Tests
 {
     public class NodeComparerTests
     {
-        [Theory]
-        [InlineData("lorem", "lorem", true)]
-        [InlineData("lorem", "ipsum", false)]
-        public void ComparesScalarString(string a, string b, bool expected)
+        [Fact]
+        public void CallsMappingNodeComparer()
         {
-            var result = new NodeComparer().Compare(new YamlScalarNode(a), new YamlScalarNode(b));
+            var original = @"
+                lorem: ipsum
+            ";
+            var changed = @"
+                lorem: dolor
+            ";
 
-            Assert.Equal(expected, result);
+            var mappingNodeComparer = Mock.Of<IMappingNodeComparer>();
+
+            var result = new NodeComparer(mappingNodeComparer, Mock.Of<ISequenceNodeComparer>()).Compare(new Path(), Parser.Parse(original), Parser.Parse(changed));
+
+            Mock.Get(mappingNodeComparer).Verify(c => c.Compare(It.Is<Path>(p => p.IsRoot()), It.IsAny<YamlMappingNode>(), It.IsAny<YamlMappingNode>()));
+        }
+
+        [Fact]
+        public void CallsSequenceNodeComparer()
+        {
+            var original = @"
+                - lorem: ipsum
+            ";
+            var changed = @"
+                - lorem: dolor
+            ";
+
+            var sequenceNodeComparer = Mock.Of<ISequenceNodeComparer>();
+
+            var result = new NodeComparer(Mock.Of<IMappingNodeComparer>(), sequenceNodeComparer).Compare(new Path(), Parser.Parse(original), Parser.Parse(changed));
+
+            Mock.Get(sequenceNodeComparer).Verify(c => c.Compare(It.Is<Path>(p => p.IsRoot()), It.IsAny<YamlSequenceNode>(), It.IsAny<YamlSequenceNode>()));
         }
     }
 }

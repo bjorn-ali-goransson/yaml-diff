@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace YamlDiff
 {
+    [DebuggerDisplay("{string.Join(\".\", Segments)}")]
     public class Path
     {
         public IEnumerable<string> Segments { get; }
@@ -21,6 +23,16 @@ namespace YamlDiff
             segments.Add(segment);
 
             return new Path(segments.ToArray());
+        }
+
+        public bool StartsWith(Path path)
+        {
+            return Enumerable.SequenceEqual(Segments.Take(path.Segments.Count()), path.Segments);
+        }
+
+        public bool IsRoot()
+        {
+            return !Segments.Any();
         }
     }
 }

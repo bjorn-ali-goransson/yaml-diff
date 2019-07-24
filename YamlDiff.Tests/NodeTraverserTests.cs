@@ -16,12 +16,11 @@ namespace YamlDiff.Tests
                 lorem: ipsum
             ";
 
-            var result = new NodeTraverser().Traverse(new Parser().Parse(document));
+            var result = new NodeTraverser().Traverse(Parser.Parse(document));
 
             Assert.Single(result);
-            Assert.Single(result.Single().Path.Segments);
-            Assert.Equal("lorem", result.Single().Path.Segments.Single());
-            Assert.Equal(new YamlScalarNode("ipsum"), result.Single().Node);
+            Assert.Equal(new string[] { }, result.Single().Path.Segments);
+            Assert.IsType<YamlMappingNode>(result.Single().Node);
         }
 
         [Fact]
@@ -32,13 +31,13 @@ namespace YamlDiff.Tests
                     ipsum: dolor
             ";
             
-            var result = new NodeTraverser().Traverse(new Parser().Parse(document));
+            var result = new NodeTraverser().Traverse(Parser.Parse(document));
 
-            Assert.Single(result);
-            Assert.Equal(2, result.Single().Path.Segments.Count());
-            Assert.Equal("lorem", result.Single().Path.Segments.First());
-            Assert.Equal("ipsum", result.Single().Path.Segments.Last());
-            Assert.Equal(new YamlScalarNode("dolor"), result.Single().Node);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(new string[] { }, result.First().Path.Segments);
+            Assert.IsType<YamlMappingNode>(result.First().Node);
+            Assert.Equal(new string[] { "lorem" }, result.Last().Path.Segments);
+            Assert.IsType<YamlMappingNode>(result.Last().Node);
         }
 
         [Fact]
@@ -49,16 +48,18 @@ namespace YamlDiff.Tests
                   - name: ipsum
                     dolor: 1
                   - sit: 2
+                amet:
+                  - adipiscing: 3
             ";
 
-            var result = new NodeTraverser().Traverse(new Parser().Parse(document));
+            var result = new NodeTraverser().Traverse(Parser.Parse(document));
 
-            Assert.Single(result);
-            Assert.Equal(3, result.Single().Path.Segments.Count());
-            Assert.Equal("lorem", result.Single().Path.Segments.ElementAt(0));
-            Assert.Equal("ipsum", result.Single().Path.Segments.ElementAt(1));
-            Assert.Equal("dolor", result.Single().Path.Segments.ElementAt(2));
-            Assert.Equal(new YamlScalarNode("1"), result.Single().Node);
+            Assert.Equal(new string[] { }, result.ElementAt(0).Path.Segments);
+            Assert.IsType<YamlMappingNode>(result.ElementAt(0).Node);
+            Assert.Equal(new string[] { "lorem" }, result.ElementAt(1).Path.Segments);
+            Assert.IsType<YamlSequenceNode>(result.ElementAt(1).Node);
+            Assert.Equal(new string[] { "lorem", "ipsum" }, result.ElementAt(2).Path.Segments);
+            Assert.IsType<YamlMappingNode>(result.ElementAt(2).Node);
         }
     }
 }

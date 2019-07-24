@@ -13,14 +13,19 @@ namespace YamlDiff
             var a = File.ReadAllText(args[0]);
             var b = File.ReadAllText(args[1]);
 
-            var parser = new Parser();
+            var result = new DiffGenerator(new NodeTraverser(), new NodeFinder(), new NodeComparer(new MappingNodeComparer(), new SequenceNodeComparer())).Generate(Parser.Parse(a), Parser.Parse(b)).ToDictionary(d => d.OriginalNode.Start.Line - 1, d => d);
 
-            var result = new DiffGenerator(new NodeTraverser(), new NodeFinder(), new NodeComparer()).Generate(parser.Parse(a), parser.Parse(b));
+            var lines = a.Split('\n');
 
-            foreach(var difference in result.Entries)
+            for(var i = 0; i < lines.Length; i++)
             {
-                Console.WriteLine(string.Join(".", difference.Path.Segments));
+                Console.WriteLine(lines[i]);
+                if (result.ContainsKey(i))
+                {
+                    Console.WriteLine($"{result[i].OriginalNode.Start}---{result[i].OriginalNode.Start} hej");
+                }
             }
+
         }
     }
 }

@@ -5,6 +5,6 @@ namespace YamlDiff
 {
     public interface IDiffGenerator
     {
-        Diff Generate(YamlNode original, YamlNode changed);
+        IEnumerable<Difference> Generate(YamlNode original, YamlNode changed);
     }
 }

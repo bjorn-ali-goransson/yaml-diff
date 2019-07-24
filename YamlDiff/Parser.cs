@@ -7,15 +7,15 @@ using YamlDotNet.RepresentationModel;
 
 namespace YamlDiff
 {
-    public class Parser : IParser
+    public static class Parser
     {
-        public YamlMappingNode Parse(string value)
+        public static YamlNode Parse(string value)
         {
             using (var read = new StringReader(value))
             {
                 var yaml = new YamlStream();
                 yaml.Load(read);
-                return (YamlMappingNode)yaml.Documents.Single().RootNode;
+                return yaml.Documents.Single().RootNode;
             }
         }
     }

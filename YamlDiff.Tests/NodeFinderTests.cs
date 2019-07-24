@@ -15,7 +15,7 @@ namespace YamlDiff.Tests
                 lorem: ipsum
             ";
 
-            var result = new NodeFinder().Find(new Path("lorem"), new Parser().Parse(document));
+            var result = new NodeFinder().Find(new Path("lorem"), Parser.Parse(document));
 
             Assert.Equal(new YamlScalarNode("ipsum"), result);
         }
@@ -28,7 +28,7 @@ namespace YamlDiff.Tests
                     ipsum: 1
             ";
 
-            var result = new NodeFinder().Find(new Path("lorem", "ipsum"), new Parser().Parse(document));
+            var result = new NodeFinder().Find(new Path("lorem", "ipsum"), Parser.Parse(document));
 
             Assert.Equal(new YamlScalarNode("1"), result);
         }
@@ -43,7 +43,7 @@ namespace YamlDiff.Tests
                     sit: 2
             ";
 
-            var result = new NodeFinder().Find(new Path("lorem", "dolor", "sit"), new Parser().Parse(document));
+            var result = new NodeFinder().Find(new Path("lorem", "dolor", "sit"), Parser.Parse(document));
 
             Assert.Equal(new YamlScalarNode("2"), result);
         }

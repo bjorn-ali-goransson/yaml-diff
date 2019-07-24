@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using YamlDotNet.RepresentationModel;
 
@@ -18,7 +19,7 @@ namespace YamlDiff
             NodeComparer = nodeComparer;
         }
 
-        public Diff Generate(YamlNode original, YamlNode changed)
+        public IEnumerable<Difference> Generate(YamlNode original, YamlNode changed)
         {
             var result = new List<Difference>();
 
@@ -28,13 +29,13 @@ namespace YamlDiff
                 var originalNode = position.Node;
                 var changedNode = NodeFinder.Find(path, changed);
 
-                if(!NodeComparer.Compare(originalNode, changedNode))
+                foreach(var difference in NodeComparer.Compare(path, originalNode, changedNode))
                 {
-                    result.Add(new Difference(path));
+                    result.Add(difference);
                 }
             }
 
-            return new Diff(result);
+            return result.AsReadOnly();
         }
     }
 }

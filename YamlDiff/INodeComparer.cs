@@ -1,9 +1,10 @@
-﻿using YamlDotNet.RepresentationModel;
+﻿using System.Collections.Generic;
+using YamlDotNet.RepresentationModel;
 
 namespace YamlDiff
 {
     public interface INodeComparer
     {
-        bool Compare(YamlNode a, YamlNode b);
+        IEnumerable<Difference> Compare(Path path, YamlNode original, YamlNode changed);
     }
 }

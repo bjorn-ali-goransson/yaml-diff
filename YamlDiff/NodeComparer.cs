@@ -7,14 +7,30 @@ namespace YamlDiff
 {
     public class NodeComparer : INodeComparer
     {
-        public bool Compare(YamlNode a, YamlNode b)
+        IMappingNodeComparer MappingNodeComparer { get; }
+        ISequenceNodeComparer SequenceNodeComparer { get; }
+
+        public NodeComparer(IMappingNodeComparer mappingNodeComparer, ISequenceNodeComparer sequenceNodeComparer)
         {
-            if(a is YamlScalarNode scalarNodeA && b is YamlScalarNode scalarNodeB)
+            MappingNodeComparer = mappingNodeComparer;
+            SequenceNodeComparer = sequenceNodeComparer;
+        }
+
+        public IEnumerable<Difference> Compare(Path path, YamlNode original, YamlNode changed)
+        {
+            var result = new List<Difference>();
+
+            if (original is YamlMappingNode originalMappingNode && changed is YamlMappingNode changedMappingNode)
             {
-                return scalarNodeA.Value == scalarNodeB.Value;
+                result.AddRange(MappingNodeComparer.Compare(path, originalMappingNode, changedMappingNode));
             }
 
-            return false;
+            if (original is YamlSequenceNode originalSequenceNode && changed is YamlSequenceNode changedSequenceNode)
+            {
+                result.AddRange(SequenceNodeComparer.Compare(path, originalSequenceNode, changedSequenceNode));
+            }
+
+            return result.AsReadOnly();
         }
     }
 }

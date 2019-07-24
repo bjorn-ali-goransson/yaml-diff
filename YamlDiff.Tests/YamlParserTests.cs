@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xunit;
+using YamlDotNet.RepresentationModel;
 
 namespace YamlDiff.Tests
 {
@@ -13,7 +14,7 @@ namespace YamlDiff.Tests
         {
             var key = "prop";
             var value = "Lorem";
-            var document = new Parser().Parse($"{key}: {value}");
+            var document = (YamlMappingNode)Parser.Parse($"{key}: {value}");
             Assert.Single(document.Children);
             Assert.Equal(key, document.Children.Single().Key);
             Assert.Equal(value, document.Children.Single().Value);

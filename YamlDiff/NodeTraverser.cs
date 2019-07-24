@@ -12,6 +12,8 @@ namespace YamlDiff
 
         public IEnumerable<NodeTraversalPosition> Traverse(YamlNode root)
         {
+            var result = new List<NodeTraversalPosition>();
+
             var queue = new Queue<NodeTraversalPosition>();
 
             queue.Enqueue(new NodeTraversalPosition(new Path(), root));
@@ -22,35 +24,33 @@ namespace YamlDiff
 
                 if (position.Node is YamlMappingNode mappingNode)
                 {
+                    result.Add(position);
+
                     foreach (var pair in mappingNode.Children)
                     {
                         queue.Enqueue(new NodeTraversalPosition(position.Path.Append(((YamlScalarNode)pair.Key).Value), pair.Value));
                     }
                 }
-                else if(position.Node is YamlSequenceNode sequenceNode)
+
+                if (position.Node is YamlSequenceNode sequenceNode)
                 {
-                    foreach (var child in sequenceNode.Children.OfType<YamlMappingNode>().Where(n => n.Children.Keys.OfType<YamlScalarNode>().Contains(NameNode)))
+                    var children = sequenceNode.Children.OfType<YamlMappingNode>().Where(n => n.Children.Keys.OfType<YamlScalarNode>().Contains(NameNode));
+
+                    if (children.Any())
+                    {
+                        result.Add(position);
+                    }
+
+                    foreach (var child in children)
                     {
                         var path = position.Path.Append(((YamlScalarNode)child[NameNode]).Value);
 
-                        foreach (var pair in child.Children)
-                        {
-                            if(pair.Key.Equals(NameNode))
-                            {
-                                continue;
-                            }
-                            queue.Enqueue(new NodeTraversalPosition(path.Append(((YamlScalarNode)pair.Key).Value), pair.Value));
-                        }
+                        queue.Enqueue(new NodeTraversalPosition(path, child));
                     }
-                }
-                else
-                {
-                    yield return position;
                 }
             }
 
-
-            yield break;
+            return result;
         }
     }
 }
