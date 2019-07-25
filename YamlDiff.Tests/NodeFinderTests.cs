@@ -47,5 +47,35 @@ namespace YamlDiff.Tests
 
             Assert.Equal(new YamlScalarNode("2"), result);
         }
+
+        [Fact]
+        public void DoesNotThrowOnStringIndicesInSequenceNodes()
+        {
+            var document = @"
+                lorem:
+                  - ipsum: 1
+                  - name: dolor
+                    sit: 2
+            ";
+
+            var result = new NodeFinder().Find(new Path("lorem", "amet"), Parser.Parse(document));
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void DoesNotThrowOnIntegerIndicesInMappingNodes()
+        {
+            var document = @"
+                lorem:
+                  - ipsum: 1
+                  - name: dolor
+                    sit: 2
+            ";
+
+            var result = new NodeFinder().Find(new Path(0), Parser.Parse(document));
+
+            Assert.Null(result);
+        }
     }
 }

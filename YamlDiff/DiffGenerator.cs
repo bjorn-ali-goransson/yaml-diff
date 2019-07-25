@@ -29,6 +29,11 @@ namespace YamlDiff
                 var originalNode = position.Node;
                 var changedNode = NodeFinder.Find(path, changed);
 
+                if(result.Any(d => path.IsUnder(d.Path)))
+                {
+                    continue;
+                }
+
                 foreach(var difference in NodeComparer.Compare(path, originalNode, changedNode))
                 {
                     result.Add(difference);

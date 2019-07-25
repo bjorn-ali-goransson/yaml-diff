@@ -39,5 +39,20 @@ namespace YamlDiff
         {
             return string.Join(string.Empty, Segments.Select(s => s is int ? $"[{s}]" : $".{s}"));
         }
+
+        public bool IsUnder(Path path)
+        {
+            return StartsWith(path);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is Path path)
+            {
+                return Enumerable.SequenceEqual(Segments, path.Segments);
+            }
+
+            return false;
+        }
     }
 }

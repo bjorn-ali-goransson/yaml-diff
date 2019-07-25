@@ -2,9 +2,10 @@
 {
     public enum ChangeType
     {
-        Addition = 1,
-        Mutation = 0,
-        Deletion = -1,
-        Transposition = 2,
+        Addition = 0,
+        Mutation = 1,
+        Deletion = 2,
+        Transposition = 3,
+        ImplicitTransposition = 4,
     }
 }

@@ -12,26 +12,70 @@ namespace YamlDiff
         {
             var result = new List<Difference>();
 
-            if (original.Children.Count == changed.Children.Count)
+            var intermediateForms = new List<List<YamlNode>>();
+
+            foreach (var originalChild in original.Children.Where(ch => !changed.Children.Contains(ch)))
             {
-                // transposition detection
-            }
-            else
-            {
-                foreach (var originalChild in original.Children)
+                var index = original.Children.IndexOf(originalChild);
+
+                if(index <= changed.Children.Count - 1 && !original.Children.Contains(changed.Children[index]))
                 {
-                    if (!changed.Children.Contains(originalChild))
-                    {
-                        result.Add(new Difference(ChangeType.Addition, path.Append(original.Children.IndexOf(originalChild)), originalChild, null));
-                    }
+                    continue;
                 }
 
-                foreach (var changedChild in changed.Children)
+                result.Add(new Difference(ChangeType.Addition, path.Append(original.Children.IndexOf(originalChild)), originalChild));
+
+                var intermediateForm = intermediateForms.Any() ? intermediateForms.Last().ToList() : original.Children.ToList();
+
+                intermediateForm.Remove(originalChild);
+
+                intermediateForms.Add(intermediateForm);
+            }
+
+            foreach (var changedChild in changed.Children.Where(ch => !original.Children.Contains(ch)))
+            {
+                var index = changed.Children.IndexOf(changedChild);
+
+                if (index <= original.Children.Count - 1 && !changed.Children.Contains(original.Children[index]))
                 {
-                    if (!original.Children.Contains(changedChild))
-                    {
-                        result.Add(new Difference(ChangeType.Deletion, path.Append(changed.Children.IndexOf(changedChild)), changedChild, null));
-                    }
+                    continue;
+                }
+
+                result.Add(new Difference(ChangeType.Deletion, path.Append(changed.Children.IndexOf(changedChild)), original.Children[index]));
+
+                var intermediateForm = intermediateForms.Any() ? intermediateForms.Last().ToList() : original.Children.ToList();
+
+                intermediateForm.Insert(index, changedChild);
+
+                intermediateForms.Add(intermediateForm);
+            }
+
+            foreach (var child in original.Children.Where(ch => changed.Children.Contains(ch)))
+            {
+                var oldIndex = original.Children.IndexOf(child);
+                var newIndex = changed.Children.IndexOf(child);
+
+                if (oldIndex != newIndex && !intermediateForms.Any(f => f.IndexOf(child) == newIndex))
+                {
+                    result.Add(new Difference(ChangeType.Transposition, path.Append(oldIndex), child));
+
+                    var intermediateForm = intermediateForms.Any() ? intermediateForms.Last().ToList() : original.Children.ToList();
+
+                    intermediateForm.RemoveAt(oldIndex);
+                    intermediateForm.Insert(newIndex, child);
+
+                    intermediateForms.Add(intermediateForm);
+                }
+            }
+
+            foreach (var child in original.Children.Where(ch => changed.Children.Contains(ch)))
+            {
+                var oldIndex = original.Children.IndexOf(child);
+                var newIndex = changed.Children.IndexOf(child);
+
+                if (oldIndex != newIndex && !result.Any(d => d.OriginalNode == child))
+                {
+                    result.Add(new Difference(ChangeType.ImplicitTransposition, path.Append(oldIndex), child));
                 }
             }
 

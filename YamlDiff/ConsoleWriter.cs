@@ -13,10 +13,12 @@ namespace YamlDiff
             var a = File.ReadAllText(original);
             var b = File.ReadAllText(changed);
 
-            var changes = new DiffGenerator(new NodeTraverser(), new NodeFinder(), new NodeComparer(new MappingNodeComparer(), new SequenceNodeComparer())).Generate(Parser.Parse(a), Parser.Parse(b));
+            var changes = new DiffGenerator(new NodeTraverser(), new NodeFinder(), new NodeComparer(new MappingNodeComparer(), new SequenceNodeComparer())).Generate(Parser.Parse(a), Parser.Parse(b)).ToList();
+
+            changes.RemoveAll(ch => ch.ChangeType == ChangeType.ImplicitTransposition && changes.Any(c => c.ChangeType != ChangeType.ImplicitTransposition && c.Path.Equals(ch.Path)));
 
             var lines = a.Split('\n');
-            var colorizations = changes.SelectMany(ch => ch.OriginalNode.AllNodes.Select(n => new Colorization(ch.ChangeType == ChangeType.Deletion ? ConsoleColor.Red : ch.ChangeType == ChangeType.Mutation ? ConsoleColor.DarkYellow : ConsoleColor.Green, n.Start.Line, n.Start.Column, n.End.Column, n.End.Column - n.Start.Column)));
+            var colorizations = changes.SelectMany(ch => ch.OriginalNode.AllNodes.Select(n => new Colorization(GetColor(ch.ChangeType), n.Start.Line, n.Start.Column, n.End.Column, n.End.Column - n.Start.Column)));
 
             var text = Console.ForegroundColor;
 
@@ -55,6 +57,27 @@ namespace YamlDiff
 
                 Console.WriteLine();
             }
+        }
+
+        ConsoleColor GetColor(ChangeType changeType)
+        {
+            if (changeType == ChangeType.Addition)
+            {
+                return ConsoleColor.Green;
+            }
+            if (changeType == ChangeType.Deletion)
+            {
+                return ConsoleColor.Red;
+            }
+            if (changeType == ChangeType.Transposition)
+            {
+                return ConsoleColor.Blue;
+            }
+            if (changeType == ChangeType.Mutation)
+            {
+                return ConsoleColor.DarkYellow;
+            }
+            return ConsoleColor.Gray;
         }
     }
 }

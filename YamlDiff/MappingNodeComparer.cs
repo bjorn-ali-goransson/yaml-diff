@@ -20,7 +20,7 @@ namespace YamlDiff
 
                 if(changedValue == null || originalValue.Value != changedValue.Value)
                 {
-                    result.Add(new Difference(ChangeType.Mutation, path.Append(key.Value), originalValue, changedValue));
+                    result.Add(new Difference(ChangeType.Mutation, path.Append(key.Value), originalValue));
                 }
             }
 

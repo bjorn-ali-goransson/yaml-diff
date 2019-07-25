@@ -20,7 +20,7 @@ namespace YamlDiff.Tests
                 lorem: dolor
             ";
 
-            var difference = new Difference(ChangeType.Mutation, new Path("lorem"), null, null);
+            var difference = new Difference(ChangeType.Mutation, new Path("lorem"), null);
 
             var nodeComparer = Mock.Of<INodeComparer>();
             Mock.Get(nodeComparer).Setup(c => c.Compare(It.IsAny<Path>(), It.IsAny<YamlNode>(), It.IsAny<YamlNode>())).Returns(() => new[] { difference });

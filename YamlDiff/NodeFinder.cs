@@ -16,7 +16,7 @@ namespace YamlDiff
 
             foreach (var segment in path.Segments)
             {
-                if (position is YamlMappingNode mappingNode)
+                if (position is YamlMappingNode mappingNode && segment is string)
                 {
                     var key = new YamlScalarNode((string)segment);
 
@@ -29,7 +29,7 @@ namespace YamlDiff
                         return null;
                     }
                 }
-                else if(position is YamlSequenceNode sequenceNode)
+                else if(position is YamlSequenceNode sequenceNode && segment is int)
                 {
                     var index = (int)segment;
 
