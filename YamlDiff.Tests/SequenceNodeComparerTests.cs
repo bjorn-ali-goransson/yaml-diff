@@ -73,6 +73,7 @@ namespace YamlDiff.Tests
             Assert.Single(result);
             Assert.Equal(new object[] { 1 }, result.Single().Path.Segments);
             Assert.Equal(ChangeType.Deletion, result.Single().ChangeType);
+            Assert.Equal(Parser.Parse("dolor: sit"), result.Single().Node);
         }
 
         [Fact]

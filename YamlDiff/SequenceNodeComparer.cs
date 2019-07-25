@@ -41,7 +41,7 @@ namespace YamlDiff
                     continue;
                 }
 
-                result.Add(new Difference(ChangeType.Deletion, path.Append(changed.Children.IndexOf(changedChild)), original.Children[index]));
+                result.Add(new Difference(ChangeType.Deletion, path.Append(changed.Children.IndexOf(changedChild)), changedChild));
 
                 var intermediateForm = intermediateForms.Any() ? intermediateForms.Last().ToList() : original.Children.ToList();
 
@@ -73,7 +73,7 @@ namespace YamlDiff
                 var oldIndex = original.Children.IndexOf(child);
                 var newIndex = changed.Children.IndexOf(child);
 
-                if (oldIndex != newIndex && !result.Any(d => d.OriginalNode == child))
+                if (oldIndex != newIndex && !result.Any(d => d.Node == child))
                 {
                     result.Add(new Difference(ChangeType.ImplicitTransposition, path.Append(oldIndex), child));
                 }

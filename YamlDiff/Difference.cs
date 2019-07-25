@@ -9,13 +9,13 @@ namespace YamlDiff
     {
         public ChangeType ChangeType { get; }
         public Path Path { get; }
-        public YamlNode OriginalNode { get; }
+        public YamlNode Node { get; }
 
-        public Difference(ChangeType changeType, Path path, YamlNode originalNode)
+        public Difference(ChangeType changeType, Path path, YamlNode node)
         {
             ChangeType = changeType;
             Path = path;
-            OriginalNode = originalNode;
+            Node = node;
         }
     }
 }
