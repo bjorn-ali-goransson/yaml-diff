@@ -6,17 +6,17 @@ using System.Text;
 
 namespace YamlDiff
 {
-    [DebuggerDisplay("{string.Join(\".\", Segments)}")]
+    [DebuggerDisplay("{ToString()}")]
     public class Path
     {
-        public IEnumerable<string> Segments { get; }
+        public IEnumerable<object> Segments { get; }
 
-        public Path(params string[] segments)
+        public Path(params object[] segments)
         {
             Segments = segments.ToList().AsReadOnly();
         }
 
-        public Path Append(string segment)
+        public Path Append(object segment)
         {
             var segments = Segments.ToList();
 
@@ -33,6 +33,11 @@ namespace YamlDiff
         public bool IsRoot()
         {
             return !Segments.Any();
+        }
+
+        public override string ToString()
+        {
+            return string.Join(string.Empty, Segments.Select(s => s is int ? $"[{s}]" : $".{s}"));
         }
     }
 }

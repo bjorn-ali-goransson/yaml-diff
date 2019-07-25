@@ -8,22 +8,30 @@ namespace YamlDiff
 {
     public class SequenceNodeComparer : ISequenceNodeComparer
     {
-        YamlScalarNode NameNode { get; } = new YamlScalarNode("name");
-
         public IEnumerable<Difference> Compare(Path path, YamlSequenceNode original, YamlSequenceNode changed)
         {
             var result = new List<Difference>();
 
-            var originalChildren = original.Children.OfType<YamlMappingNode>().Where(n => n.Children.ContainsKey(NameNode) && n.Children[NameNode] is YamlScalarNode);
-
-            foreach(var originalChild in originalChildren)
+            if (original.Children.Count == changed.Children.Count)
             {
-                var name = (YamlScalarNode)originalChild.Children[NameNode];
-                var changedChild = changed.Children.OfType<YamlMappingNode>().Where(ch => ch.Children.ContainsKey(NameNode) && name.Equals(ch.Children[NameNode])).FirstOrDefault();
-
-                if(changedChild == null)
+                // transposition detection
+            }
+            else
+            {
+                foreach (var originalChild in original.Children)
                 {
-                    result.Add(new Difference(ChangeType.Addition, path.Append(name.Value), originalChild, changedChild));
+                    if (!changed.Children.Contains(originalChild))
+                    {
+                        result.Add(new Difference(ChangeType.Addition, path.Append(original.Children.IndexOf(originalChild)), originalChild, null));
+                    }
+                }
+
+                foreach (var changedChild in changed.Children)
+                {
+                    if (!original.Children.Contains(changedChild))
+                    {
+                        result.Add(new Difference(ChangeType.Deletion, path.Append(changed.Children.IndexOf(changedChild)), changedChild, null));
+                    }
                 }
             }
 

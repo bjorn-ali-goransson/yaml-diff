@@ -8,8 +8,6 @@ namespace YamlDiff
 {
     public class NodeTraverser : INodeTraverser
     {
-        YamlScalarNode NameNode { get; } = new YamlScalarNode("name");
-
         public IEnumerable<NodeTraversalPosition> Traverse(YamlNode root)
         {
             var result = new List<NodeTraversalPosition>();
@@ -34,18 +32,13 @@ namespace YamlDiff
 
                 if (position.Node is YamlSequenceNode sequenceNode)
                 {
-                    var children = sequenceNode.Children.OfType<YamlMappingNode>().Where(n => n.Children.Keys.OfType<YamlScalarNode>().Contains(NameNode));
+                    result.Add(position);
 
-                    if (children.Any())
+                    for (var i = 0; i < sequenceNode.Children.Count; i++)
                     {
-                        result.Add(position);
-                    }
+                        var path = position.Path.Append(i);
 
-                    foreach (var child in children)
-                    {
-                        var path = position.Path.Append(((YamlScalarNode)child[NameNode]).Value);
-
-                        queue.Enqueue(new NodeTraversalPosition(path, child));
+                        queue.Enqueue(new NodeTraversalPosition(path, sequenceNode.Children[i]));
                     }
                 }
             }

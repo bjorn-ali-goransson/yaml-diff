@@ -18,7 +18,7 @@ namespace YamlDiff
             {
                 if (position is YamlMappingNode mappingNode)
                 {
-                    var key = new YamlScalarNode(segment);
+                    var key = new YamlScalarNode((string)segment);
 
                     if (mappingNode.Children.ContainsKey(key))
                     {
@@ -31,9 +31,9 @@ namespace YamlDiff
                 }
                 else if(position is YamlSequenceNode sequenceNode)
                 {
-                    var key = new YamlScalarNode(segment);
+                    var index = (int)segment;
 
-                    var child = sequenceNode.Children.OfType<YamlMappingNode>().Where(n => n.Children.ContainsKey(NameNode) && n.Children[NameNode].Equals(key)).FirstOrDefault();
+                    var child = index <= sequenceNode.Children.Count - 1 ? sequenceNode.Children[index] : null;
 
                     if (child != null)
                     {

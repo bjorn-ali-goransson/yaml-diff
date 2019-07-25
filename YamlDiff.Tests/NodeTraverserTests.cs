@@ -19,7 +19,7 @@ namespace YamlDiff.Tests
             var result = new NodeTraverser().Traverse(Parser.Parse(document));
 
             Assert.Single(result);
-            Assert.Equal(new string[] { }, result.Single().Path.Segments);
+            Assert.Equal(new object[] { }, result.Single().Path.Segments);
             Assert.IsType<YamlMappingNode>(result.Single().Node);
         }
 
@@ -34,14 +34,14 @@ namespace YamlDiff.Tests
             var result = new NodeTraverser().Traverse(Parser.Parse(document));
 
             Assert.Equal(2, result.Count());
-            Assert.Equal(new string[] { }, result.First().Path.Segments);
+            Assert.Equal(new object[] { }, result.First().Path.Segments);
             Assert.IsType<YamlMappingNode>(result.First().Node);
-            Assert.Equal(new string[] { "lorem" }, result.Last().Path.Segments);
+            Assert.Equal(new object[] { "lorem" }, result.Last().Path.Segments);
             Assert.IsType<YamlMappingNode>(result.Last().Node);
         }
 
         [Fact]
-        public void OnlyTraversesNamedChildrenInSequenceNodes()
+        public void TraversesSequenceNodes()
         {
             var document = @"
                 lorem:
@@ -54,12 +54,23 @@ namespace YamlDiff.Tests
 
             var result = new NodeTraverser().Traverse(Parser.Parse(document));
 
-            Assert.Equal(new string[] { }, result.ElementAt(0).Path.Segments);
+            Assert.Equal(new object[] { }, result.ElementAt(0).Path.Segments);
             Assert.IsType<YamlMappingNode>(result.ElementAt(0).Node);
-            Assert.Equal(new string[] { "lorem" }, result.ElementAt(1).Path.Segments);
+
+            Assert.Equal(new object[] { "lorem" }, result.ElementAt(1).Path.Segments);
             Assert.IsType<YamlSequenceNode>(result.ElementAt(1).Node);
-            Assert.Equal(new string[] { "lorem", "ipsum" }, result.ElementAt(2).Path.Segments);
-            Assert.IsType<YamlMappingNode>(result.ElementAt(2).Node);
+
+            Assert.Equal(new object[] { "amet" }, result.ElementAt(2).Path.Segments);
+            Assert.IsType<YamlSequenceNode>(result.ElementAt(2).Node);
+
+            Assert.Equal(new object[] { "lorem", 0 }, result.ElementAt(3).Path.Segments);
+            Assert.IsType<YamlMappingNode>(result.ElementAt(3).Node);
+
+            Assert.Equal(new object[] { "lorem", 1 }, result.ElementAt(4).Path.Segments);
+            Assert.IsType<YamlMappingNode>(result.ElementAt(4).Node);
+
+            Assert.Equal(new object[] { "amet", 0 }, result.ElementAt(5).Path.Segments);
+            Assert.IsType<YamlMappingNode>(result.ElementAt(5).Node);
         }
     }
 }

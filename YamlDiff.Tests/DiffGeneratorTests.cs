@@ -47,7 +47,7 @@ namespace YamlDiff.Tests
             var result = new DiffGenerator(new NodeTraverser(), new NodeFinder(), new NodeComparer(new MappingNodeComparer(), new SequenceNodeComparer())).Generate(Parser.Parse(originalDocument), Parser.Parse(changedDocument));
 
             Assert.Single(result);
-            Assert.Equal(new string[] { "lorem", "ipsum" }, result.Single().Path.Segments);
+            Assert.Equal(new object[] { "lorem", "ipsum" }, result.Single().Path.Segments);
         }
     }
 }

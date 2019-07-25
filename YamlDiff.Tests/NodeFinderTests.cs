@@ -34,7 +34,7 @@ namespace YamlDiff.Tests
         }
 
         [Fact]
-        public void FindsNamedChildInSequenceNode()
+        public void FindsChildInSequenceNode()
         {
             var document = @"
                 lorem:
@@ -43,7 +43,7 @@ namespace YamlDiff.Tests
                     sit: 2
             ";
 
-            var result = new NodeFinder().Find(new Path("lorem", "dolor", "sit"), Parser.Parse(document));
+            var result = new NodeFinder().Find(new Path("lorem", 1, "sit"), Parser.Parse(document));
 
             Assert.Equal(new YamlScalarNode("2"), result);
         }
