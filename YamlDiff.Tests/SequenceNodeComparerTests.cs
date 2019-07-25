@@ -136,9 +136,9 @@ namespace YamlDiff.Tests
             var result = new SequenceNodeComparer().Compare(new Path(), (YamlSequenceNode)Parser.Parse(originalDocument), (YamlSequenceNode)Parser.Parse(changedDocument));
 
             Assert.Equal(2, result.Count());
-            Assert.Equal(new object[] { 1 }, result.ElementAt(0).Path.Segments);
+            Assert.Equal(new object[] { 0 }, result.ElementAt(0).Path.Segments);
             Assert.Equal(ChangeType.Deletion, result.ElementAt(0).ChangeType);
-            Assert.Equal(new object[] { 1 }, result.ElementAt(1).Path.Segments);
+            Assert.Equal(new object[] { 0 }, result.ElementAt(1).Path.Segments);
             Assert.Equal(ChangeType.ImplicitTransposition, result.ElementAt(1).ChangeType);
         }
     }
