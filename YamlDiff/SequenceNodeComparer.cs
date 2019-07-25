@@ -79,7 +79,7 @@ namespace YamlDiff
                 }
             }
 
-            return result;
+            return result.OrderBy(d => d.Path.Segments.Last());
         }
     }
 }
