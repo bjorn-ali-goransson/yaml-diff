@@ -10,7 +10,22 @@ namespace YamlDiff.Tests
     public class MappingNodeComparerTests
     {
         [Fact]
-        public void DetectMissingScalarNodeInB()
+        public void IdenticalSinglePropertyDocuments()
+        {
+            var originalDocument = @"
+                lorem: ipsum
+            ";
+            var changedDocument = @"
+                lorem: ipsum
+            ";
+
+            var result = new MappingNodeComparer().Compare(new Path(), (YamlMappingNode)Parser.Parse(originalDocument), (YamlMappingNode)Parser.Parse(changedDocument));
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void DetectMissingScalarNode()
         {
             var originalDocument = @"
                 lorem: ipsum
@@ -18,6 +33,39 @@ namespace YamlDiff.Tests
             ";
             var changedDocument = @"
                 dolor: sit
+            ";
+
+            var result = new MappingNodeComparer().Compare(new Path(), (YamlMappingNode)Parser.Parse(originalDocument), (YamlMappingNode)Parser.Parse(changedDocument));
+
+            Assert.Single(result);
+            Assert.Equal(new[] { "lorem" }, result.Single().Path.Segments);
+        }
+
+        [Fact]
+        public void DetectChangedScalarNode()
+        {
+            var originalDocument = @"
+                lorem: ipsum
+            ";
+            var changedDocument = @"
+                lorem: dolor
+            ";
+
+            var result = new MappingNodeComparer().Compare(new Path(), (YamlMappingNode)Parser.Parse(originalDocument), (YamlMappingNode)Parser.Parse(changedDocument));
+
+            Assert.Single(result);
+            Assert.Equal(new[] { "lorem" }, result.Single().Path.Segments);
+        }
+
+        [Fact]
+        public void DetectScalarNodeChangedToMappingNode()
+        {
+            var originalDocument = @"
+                lorem: ipsum
+            ";
+            var changedDocument = @"
+                lorem:
+                    ipsum: sit
             ";
 
             var result = new MappingNodeComparer().Compare(new Path(), (YamlMappingNode)Parser.Parse(originalDocument), (YamlMappingNode)Parser.Parse(changedDocument));

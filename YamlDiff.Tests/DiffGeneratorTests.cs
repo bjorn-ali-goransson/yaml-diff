@@ -11,22 +11,7 @@ namespace YamlDiff.Tests
     public class DiffGeneratorTests
     {
         [Fact]
-        public void IdenticalSinglePropertyDocumentsMatch()
-        {
-            var originalDocument = @"
-                lorem: ipsum
-            ";
-            var changedDocument = @"
-                lorem: ipsum
-            ";
-
-            var result = new DiffGenerator(new NodeTraverser(), new NodeFinder(), new NodeComparer(new MappingNodeComparer(), new SequenceNodeComparer())).Generate(Parser.Parse(originalDocument), Parser.Parse(changedDocument));
-
-            Assert.Empty(result);
-        }
-
-        [Fact]
-        public void DetectChangedMappingNodeScalarNode()
+        public void CallsNodeComparer()
         {
             var originalDocument = @"
                 lorem: ipsum
@@ -35,10 +20,16 @@ namespace YamlDiff.Tests
                 lorem: dolor
             ";
 
-            var result = new DiffGenerator(new NodeTraverser(), new NodeFinder(), new NodeComparer(new MappingNodeComparer(), new SequenceNodeComparer())).Generate(Parser.Parse(originalDocument), Parser.Parse(changedDocument));
+            var difference = new Difference(ChangeType.Mutation, new Path("lorem"), null, null);
 
+            var nodeComparer = Mock.Of<INodeComparer>();
+            Mock.Get(nodeComparer).Setup(c => c.Compare(It.IsAny<Path>(), It.IsAny<YamlNode>(), It.IsAny<YamlNode>())).Returns(() => new[] { difference });
+
+            var result = new DiffGenerator(new NodeTraverser(), new NodeFinder(), nodeComparer).Generate(Parser.Parse(originalDocument), Parser.Parse(changedDocument));
+
+            Mock.Get(nodeComparer).Verify(c => c.Compare(It.Is<Path>(p => p.IsRoot()), It.IsAny<YamlNode>(), It.IsAny<YamlNode>()));
             Assert.Single(result);
-            Assert.Single(result.Single().Path.Segments, "lorem");
+            Assert.Same(difference, result.Single());
         }
 
         [Fact]
@@ -57,65 +48,6 @@ namespace YamlDiff.Tests
 
             Assert.Single(result);
             Assert.Equal(new string[] { "lorem", "ipsum" }, result.Single().Path.Segments);
-        }
-
-        [Fact]
-        public void DetectMappingNodeHavingScalarNodeChangedToMappingNode()
-        {
-            var originalDocument = @"
-                lorem: ipsum
-            ";
-            var changedDocument = @"
-                lorem:
-                    ipsum: sit
-            ";
-
-            var result = new DiffGenerator(new NodeTraverser(), new NodeFinder(), new NodeComparer(new MappingNodeComparer(), new SequenceNodeComparer())).Generate(Parser.Parse(originalDocument), Parser.Parse(changedDocument));
-
-            Assert.Single(result);
-            Assert.Single(result.Single().Path.Segments, "lorem");
-        }
-
-        [Fact]
-        public void CallsNodeComparer()
-        {
-            var originalDocument = @"
-                lorem: ipsum
-            ";
-            var changedDocument = @"
-                lorem: dolor
-            ";
-
-            var difference = new Difference(new Path("lorem"), null, null);
-
-            var nodeComparer = Mock.Of<INodeComparer>();
-            Mock.Get(nodeComparer).Setup(c => c.Compare(It.IsAny<Path>(), It.IsAny<YamlNode>(), It.IsAny<YamlNode>())).Returns(() => new[] { difference });
-
-            var result = new DiffGenerator(new NodeTraverser(), new NodeFinder(), nodeComparer).Generate(Parser.Parse(originalDocument), Parser.Parse(changedDocument));
-
-            Mock.Get(nodeComparer).Verify(c => c.Compare(It.Is<Path>(p => p.IsRoot()), It.IsAny<YamlNode>(), It.IsAny<YamlNode>()));
-            Assert.Single(result);
-            Assert.Same(difference, result.Single());
-        }
-
-        [Fact]
-        public void DetectAddedSequenceNodeNamedChild()
-        {
-            var originalDocument = @"
-                lorem:
-                  - name: ipsum
-                  - name: dolor
-                    sit: 1
-            ";
-            var changedDocument = @"
-                lorem:
-                  - name: ipsum
-            ";
-
-            var result = new DiffGenerator(new NodeTraverser(), new NodeFinder(), new NodeComparer(new MappingNodeComparer(), new SequenceNodeComparer())).Generate(Parser.Parse(originalDocument), Parser.Parse(changedDocument));
-
-            Assert.Single(result);
-            Assert.Equal(new string[] { "lorem", "dolor" }, result.Single().Path.Segments);
         }
     }
 }
